@@ -1,2 +1,9 @@
-
 .idea/
+
+# 환경변수 파일 (운영 비밀 노출 방지)
+.env
+**/.env
+**/.env.local
+
+# OS
+.DS_Store
