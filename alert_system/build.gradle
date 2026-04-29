@@ -48,6 +48,9 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // ULID
+    implementation("com.github.f4b6a3:ulid-creator:5.2.3")
 }
 
 tasks.named('test') {
