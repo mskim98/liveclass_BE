@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public record NotificationCreateCommand(
-        String idempotencyKey,
         List<UUID> receiverIds,
         NotificationType type,
         String referenceType,
