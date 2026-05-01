@@ -21,7 +21,7 @@ public interface NotificationDeliveryRepository extends JpaRepository<Notificati
             """, nativeQuery = true)
     List<NotificationDelivery> lockPendingForDispatch(@Param("now") Instant now,
                                                       @Param("limit") int limit);
- 
+
     List<NotificationDelivery> findAllByStateAndProcessingStartedAtBefore(DeliveryState state,
                                                                          Instant threshold);
 
