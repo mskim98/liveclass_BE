@@ -6,35 +6,35 @@ spring:
     import: optional:file:.env[.properties]
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:alert}
-    username: ${DB_USERNAME:alert}
-    password: ${DB_PASSWORD:alert}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: alert-pool
-      maximum-pool-size: ${DB_POOL_MAX:80}
-      minimum-idle: ${DB_POOL_MIN:20}
-      connection-timeout: ${DB_CONNECTION_TIMEOUT:3000}
-      max-lifetime: ${DB_MAX_LIFETIME:1800000}
+      maximum-pool-size: ${DB_POOL_MAX}
+      minimum-idle: ${DB_POOL_MIN}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT}
+      max-lifetime: ${DB_MAX_LIFETIME}
 
   jpa:
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
+      ddl-auto: ${JPA_DDL_AUTO}
     properties:
       hibernate:
-        format_sql: ${JPA_FORMAT_SQL:false}
+        format_sql: ${JPA_FORMAT_SQL}
         jdbc:
           time_zone: UTC
         default_batch_fetch_size: 100
     open-in-view: false
 
   flyway:
-    enabled: ${FLYWAY_ENABLED:false}
+    enabled: ${FLYWAY_ENABLED}
     locations: classpath:db/migration
     baseline-on-migrate: true
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT}
 
 management:
   endpoints:
@@ -45,30 +45,31 @@ management:
     health:
       show-details: when-authorized
 
+# notification.* 설정은 .env 가 단일 진실 원천 — 누락 시 부팅 실패 (의도된 fail-fast)
 notification:
   worker:
-    polling-interval-ms: ${WORKER_POLLING_INTERVAL_MS:1000}
-    batch-size: ${WORKER_BATCH_SIZE:50}
+    polling-interval-ms: ${WORKER_POLLING_INTERVAL_MS}
+    batch-size: ${WORKER_BATCH_SIZE}
     thread-pool:
-      core-size: ${WORKER_THREADS_CORE:60}
-      max-size: ${WORKER_THREADS_MAX:60}
-      queue-capacity: ${WORKER_QUEUE_CAPACITY:200}
+      core-size: ${WORKER_THREADS_CORE}
+      max-size: ${WORKER_THREADS_MAX}
+      queue-capacity: ${WORKER_QUEUE_CAPACITY}
       thread-name-prefix: "notif-dispatch-"
 
   retry:
-    base-delay-seconds: ${RETRY_BASE_DELAY_SEC:1}
-    multiplier: ${RETRY_MULTIPLIER:2.0}
-    max-delay-seconds: ${RETRY_MAX_DELAY_SEC:60}
-    jitter-ratio: ${RETRY_JITTER_RATIO:0.2}
+    base-delay-seconds: ${RETRY_BASE_DELAY_SEC}
+    multiplier: ${RETRY_MULTIPLIER}
+    max-delay-seconds: ${RETRY_MAX_DELAY_SEC}
+    jitter-ratio: ${RETRY_JITTER_RATIO}
 
   sender:
     email:
-      failure-rate: ${SENDER_EMAIL_FAILURE_RATE:0.0}
-      non-retryable-rate: ${SENDER_EMAIL_NON_RETRYABLE_RATE:0.0}
+      failure-rate: ${SENDER_EMAIL_FAILURE_RATE}
+      non-retryable-rate: ${SENDER_EMAIL_NON_RETRYABLE_RATE}
     in-app:
-      failure-rate: ${SENDER_INAPP_FAILURE_RATE:0.0}
+      failure-rate: ${SENDER_INAPP_FAILURE_RATE}
 
 logging:
   level:
-    src.alert_system: ${LOG_LEVEL:INFO}
-    org.hibernate.SQL: ${LOG_SQL:INFO}
+    src.alert_system: ${LOG_LEVEL}
+    org.hibernate.SQL: ${LOG_SQL}
