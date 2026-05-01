@@ -6,70 +6,84 @@ spring:
     import: optional:file:.env[.properties]
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:alert}
+    username: ${DB_USERNAME:alert}
+    password: ${DB_PASSWORD:alert}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: alert-pool
-      maximum-pool-size: ${DB_POOL_MAX}
-      minimum-idle: ${DB_POOL_MIN}
-      connection-timeout: ${DB_CONNECTION_TIMEOUT}
-      max-lifetime: ${DB_MAX_LIFETIME}
+      maximum-pool-size: ${DB_POOL_MAX:80}
+      minimum-idle: ${DB_POOL_MIN:20}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:3000}
+      max-lifetime: ${DB_MAX_LIFETIME:1800000}
 
   jpa:
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO}
+      ddl-auto: ${JPA_DDL_AUTO:update}
     properties:
       hibernate:
-        format_sql: ${JPA_FORMAT_SQL}
+        format_sql: ${JPA_FORMAT_SQL:false}
         jdbc:
           time_zone: UTC
         default_batch_fetch_size: 100
     open-in-view: false
 
   flyway:
-    enabled: ${FLYWAY_ENABLED}
+    enabled: ${FLYWAY_ENABLED:false}
     locations: classpath:db/migration
     baseline-on-migrate: true
 
 server:
-  port: ${SERVER_PORT}
+  port: ${SERVER_PORT:8080}
 
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics
+        include: health, info, metrics, prometheus
   endpoint:
     health:
       show-details: when-authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
 
-# notification.* 설정은 .env 가 단일 진실 원천 — 누락 시 부팅 실패 (의도된 fail-fast)
+# notification.* 설정은 .env 가 우선, 없으면 아래 default — 테스트/CI 환경에서도 부팅 가능
 notification:
   worker:
-    polling-interval-ms: ${WORKER_POLLING_INTERVAL_MS}
-    batch-size: ${WORKER_BATCH_SIZE}
+    polling-interval-ms: ${WORKER_POLLING_INTERVAL_MS:1000}
+    batch-size: ${WORKER_BATCH_SIZE:50}
     thread-pool:
-      core-size: ${WORKER_THREADS_CORE}
-      max-size: ${WORKER_THREADS_MAX}
-      queue-capacity: ${WORKER_QUEUE_CAPACITY}
+      core-size: ${WORKER_THREADS_CORE:60}
+      max-size: ${WORKER_THREADS_MAX:60}
+      queue-capacity: ${WORKER_QUEUE_CAPACITY:200}
       thread-name-prefix: "notif-dispatch-"
 
   retry:
-    base-delay-seconds: ${RETRY_BASE_DELAY_SEC}
-    multiplier: ${RETRY_MULTIPLIER}
-    max-delay-seconds: ${RETRY_MAX_DELAY_SEC}
-    jitter-ratio: ${RETRY_JITTER_RATIO}
+    base-delay-seconds: ${RETRY_BASE_DELAY_SEC:1}
+    multiplier: ${RETRY_MULTIPLIER:2.0}
+    max-delay-seconds: ${RETRY_MAX_DELAY_SEC:60}
+    jitter-ratio: ${RETRY_JITTER_RATIO:0.2}
+
+  recovery:
+    polling-interval-ms: ${RECOVERY_POLLING_INTERVAL_MS:10000}
+    stuck-threshold-ms: ${RECOVERY_STUCK_THRESHOLD_MS:60000}
+    batch-size: ${RECOVERY_BATCH_SIZE:100}
 
   sender:
     email:
-      failure-rate: ${SENDER_EMAIL_FAILURE_RATE}
-      non-retryable-rate: ${SENDER_EMAIL_NON_RETRYABLE_RATE}
+      failure-rate: ${SENDER_EMAIL_FAILURE_RATE:0.0}
+      non-retryable-rate: ${SENDER_EMAIL_NON_RETRYABLE_RATE:0.0}
     in-app:
-      failure-rate: ${SENDER_INAPP_FAILURE_RATE}
+      failure-rate: ${SENDER_INAPP_FAILURE_RATE:0.0}
 
 logging:
   level:
-    src.alert_system: ${LOG_LEVEL}
-    org.hibernate.SQL: ${LOG_SQL}
+    src.alert_system: ${LOG_LEVEL:INFO}
+    org.hibernate.SQL: ${LOG_SQL:INFO}
+  pattern:
+    # MDC 의 requestId / deliveryId 를 모든 로그에 노출 → 한 요청 / 한 발송단위의 전체 시퀀스 추적 가능
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{requestId:-}] [%X{deliveryId:-}] %logger{36} - %msg%n"
