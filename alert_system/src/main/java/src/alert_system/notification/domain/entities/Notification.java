@@ -18,12 +18,18 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import src.alert_system.common.entities.BaseEntity;
+import src.alert_system.notification.domain.enums.Channel;
 import src.alert_system.notification.domain.enums.NotificationType;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "notification")
@@ -95,5 +101,49 @@ public class Notification extends BaseEntity {
     public void addDelivery(NotificationDelivery delivery) {
         this.deliveries.add(delivery);
         delivery.assignTo(this);
+    }
+
+    // 알림 정체성 필드들로 멱등키 파생 메서드 (도메인이 자기 정체성 결정 — application 레이어 의존 없음)
+    public static String deriveIdempotencyKey(final NotificationType type,
+                                              final String referenceType,
+                                              final String referenceId,
+                                              final List<UUID> receiverIds,
+                                              final List<Channel> channels) {
+        final String sortedReceivers = receiverIds.stream()
+                .map(UUID::toString)
+                .sorted()
+                .collect(Collectors.joining(","));
+        final String sortedChannels = channels.stream()
+                .map(Channel::name)
+                .sorted()
+                .collect(Collectors.joining(","));
+
+        final String raw = String.join("|",
+                type.name(),
+                nullToEmpty(referenceType),
+                nullToEmpty(referenceId),
+                sortedReceivers,
+                sortedChannels);
+
+        return sha256Hex(raw);
+    }
+
+    private static String nullToEmpty(final String value) {
+        return value == null ? "" : value;
+    }
+
+    // SHA-256 hex 변환 메서드
+    private static String sha256Hex(final String raw) {
+        try {
+            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            final byte[] bytes = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
+            final StringBuilder hex = new StringBuilder(bytes.length * 2);
+            for (final byte b : bytes) {
+                hex.append(String.format("%02x", b));
+            }
+            return hex.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 알고리즘 미지원", e);
+        }
     }
 }

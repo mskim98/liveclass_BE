@@ -2,6 +2,7 @@ package src.alert_system.notification.domain.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -16,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import src.alert_system.notification.domain.enums.DeliveryErrorCode;
 
 import java.time.Instant;
@@ -24,6 +26,7 @@ import java.time.Instant;
 @Table(name = "notification_delivery_attempt")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class NotificationDeliveryFail {
 
     @Id
