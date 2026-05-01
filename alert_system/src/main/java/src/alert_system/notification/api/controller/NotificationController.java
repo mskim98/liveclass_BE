@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import src.alert_system.common.response.ApiResponse;
 import src.alert_system.notification.api.dto.NotificationCreateRequest;
@@ -44,5 +45,17 @@ public class NotificationController {
         final NotificationResponse response = notificationService.findById(notificationId);
 
         return ResponseEntity.ok(ApiResponse.successResponse(response));
+    }
+
+    // 운영자 수동 재시도 엔드포인트 메서드 (DEAD 발송단위 한정)
+    @PostMapping("/{notificationId}/deliveries/{deliveryId}/retry")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ApiResponse<Void> retryDelivery(
+            @PathVariable final String notificationId,
+            @PathVariable final Long deliveryId) {
+
+        notificationService.retryDeadDelivery(notificationId, deliveryId);
+
+        return ApiResponse.successResponse(null);
     }
 }
