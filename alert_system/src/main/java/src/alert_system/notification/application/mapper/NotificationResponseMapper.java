@@ -3,6 +3,7 @@ package src.alert_system.notification.application.mapper;
 import org.springframework.stereotype.Component;
 import src.alert_system.notification.api.dto.NotificationDeliveryResponse;
 import src.alert_system.notification.api.dto.NotificationResponse;
+import src.alert_system.notification.api.dto.UserNotificationResponse;
 import src.alert_system.notification.domain.entities.Notification;
 import src.alert_system.notification.domain.entities.NotificationDelivery;
 
@@ -42,6 +43,24 @@ public class NotificationResponseMapper {
                 delivery.getNextAttemptAt(),
                 delivery.getSentAt(),
                 delivery.getReadAt()
+        );
+    }
+
+    // 사용자 관점 알림 응답 변환 메서드 (delivery + notification 메타 평탄화)
+    public UserNotificationResponse toUserResponse(final NotificationDelivery delivery) {
+        final Notification notification = delivery.getNotification();
+        return new UserNotificationResponse(
+                delivery.getId(),
+                notification.getId(),
+                notification.getType(),
+                notification.getReferenceType(),
+                notification.getReferenceId(),
+                delivery.getChannel(),
+                delivery.getState(),
+                notification.getPayload(),
+                delivery.getSentAt(),
+                delivery.getReadAt(),
+                notification.getCreatedAt()
         );
     }
 }
