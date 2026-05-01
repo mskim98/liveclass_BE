@@ -12,14 +12,14 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: alert-pool
-      maximum-pool-size: ${DB_POOL_MAX:30}
-      minimum-idle: ${DB_POOL_MIN:10}
+      maximum-pool-size: ${DB_POOL_MAX:80}
+      minimum-idle: ${DB_POOL_MIN:20}
       connection-timeout: ${DB_CONNECTION_TIMEOUT:3000}
       max-lifetime: ${DB_MAX_LIFETIME:1800000}
 
   jpa:
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:none}
+      ddl-auto: ${JPA_DDL_AUTO:update}
     properties:
       hibernate:
         format_sql: ${JPA_FORMAT_SQL:false}
@@ -44,6 +44,29 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+
+notification:
+  worker:
+    polling-interval-ms: ${WORKER_POLLING_INTERVAL_MS:1000}
+    batch-size: ${WORKER_BATCH_SIZE:50}
+    thread-pool:
+      core-size: ${WORKER_THREADS_CORE:60}
+      max-size: ${WORKER_THREADS_MAX:60}
+      queue-capacity: ${WORKER_QUEUE_CAPACITY:200}
+      thread-name-prefix: "notif-dispatch-"
+
+  retry:
+    base-delay-seconds: ${RETRY_BASE_DELAY_SEC:1}
+    multiplier: ${RETRY_MULTIPLIER:2.0}
+    max-delay-seconds: ${RETRY_MAX_DELAY_SEC:60}
+    jitter-ratio: ${RETRY_JITTER_RATIO:0.2}
+
+  sender:
+    email:
+      failure-rate: ${SENDER_EMAIL_FAILURE_RATE:0.0}
+      non-retryable-rate: ${SENDER_EMAIL_NON_RETRYABLE_RATE:0.0}
+    in-app:
+      failure-rate: ${SENDER_INAPP_FAILURE_RATE:0.0}
 
 logging:
   level:
