@@ -158,6 +158,12 @@ public class NotificationDelivery extends BaseMutableEntity {
         }
     }
 
+    // 수동 재시도 진입 전 retry 카운터 초기화 메서드 (DEAD → PENDING 전이 직전 호출)
+    public void resetForManualRetry() {
+        this.retryCount = 0;
+        this.lastFailureReason = null;
+    }
+
     // 재시도 가능 여부 판단 기능
     public boolean canRetry() {
         return this.retryCount < this.maxRetries;
