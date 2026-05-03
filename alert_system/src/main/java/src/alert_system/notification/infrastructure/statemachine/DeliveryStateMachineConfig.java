@@ -29,8 +29,7 @@ public class DeliveryStateMachineConfig
         states.withStates()
                 .initial(DeliveryState.PENDING)
                 .states(EnumSet.allOf(DeliveryState.class))
-                .end(DeliveryState.SENT)
-                .end(DeliveryState.DEAD);
+                .end(DeliveryState.SENT);
     }
 
     @Override
