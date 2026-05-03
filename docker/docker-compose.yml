@@ -3,6 +3,11 @@ services:
     image: postgres:16-alpine
     container_name: alert_postgres
     restart: unless-stopped
+    # Hikari 풀(130) + 멀티 인스턴스 여지 확보 — 기본 100 으로는 부족
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
     ports:
       - "${DB_PORT:-5432}:5432"
     environment:

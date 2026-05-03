@@ -12,8 +12,8 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: alert-pool
-      maximum-pool-size: ${DB_POOL_MAX:80}
-      minimum-idle: ${DB_POOL_MIN:20}
+      maximum-pool-size: ${DB_POOL_MAX:130}
+      minimum-idle: ${DB_POOL_MIN:30}
       connection-timeout: ${DB_CONNECTION_TIMEOUT:3000}
       max-lifetime: ${DB_MAX_LIFETIME:1800000}
 
@@ -54,12 +54,12 @@ management:
 # notification.* 설정은 .env 가 우선, 없으면 아래 default — 테스트/CI 환경에서도 부팅 가능
 notification:
   worker:
-    polling-interval-ms: ${WORKER_POLLING_INTERVAL_MS:1000}
-    batch-size: ${WORKER_BATCH_SIZE:50}
+    polling-interval-ms: ${WORKER_POLLING_INTERVAL_MS:200}
+    batch-size: ${WORKER_BATCH_SIZE:100}
     thread-pool:
-      core-size: ${WORKER_THREADS_CORE:60}
-      max-size: ${WORKER_THREADS_MAX:60}
-      queue-capacity: ${WORKER_QUEUE_CAPACITY:200}
+      core-size: ${WORKER_THREADS_CORE:100}
+      max-size: ${WORKER_THREADS_MAX:100}
+      queue-capacity: ${WORKER_QUEUE_CAPACITY:400}
       thread-name-prefix: "notif-dispatch-"
 
   retry:
